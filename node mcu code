@@ -1,0 +1,190 @@
+#include <ESP8266WiFi.h>
+ 
+const char* ssid = "your wifi";
+const char* password = "password";
+ 
+#define IN1 D2
+#define IN2 D3
+#define IN3 D4
+#define IN4 D5
+
+
+int value1 = LOW;
+int value2 = LOW;
+int value3 = LOW;
+int value4 = LOW;
+
+WiFiServer server(80);
+
+void setup(){
+  
+Serial.begin(115200);
+delay(10);
+pinMode(IN1, OUTPUT);
+pinMode(IN2, OUTPUT);
+pinMode(IN3, OUTPUT);
+pinMode(IN4, OUTPUT);
+
+digitalWrite(IN1, LOW);
+digitalWrite(IN2, LOW);
+digitalWrite(IN3, LOW);
+digitalWrite(IN4, LOW);
+
+Serial.println();
+Serial.println();
+Serial.print("Connecting to ");
+Serial.println(ssid);
+
+WiFi.begin(ssid, password);
+while (WiFi.status() != WL_CONNECTED) {
+delay(500);
+Serial.print(".");
+}
+Serial.println("");
+Serial.println("WiFi connected");
+
+server.begin();
+Serial.println("Server started");
+Serial.print("Use this URL to connect: ");
+Serial.print("http://");
+Serial.print(WiFi.localIP());
+Serial.println("/");
+
+}
+
+void loop() {
+  
+WiFiClient client = server.available();
+if (!client) {
+return;
+}
+Serial.println("new client");
+
+client.println("HTTP/1.1 200 OK");
+client.println("Content-Type: text/html");
+client.println("");
+
+client.println("<!DOCTYPE HTML>");
+client.println("<html>");
+client.println("<head>");
+client.println("<title>Smart Arabic Projects</title>");
+client.println("<meta charset=\"utf-8\">");
+client.println("<meta name=\"viewport\" content=\"width=device-width, initial-scale=1\">");
+client.println("<link rel=\"stylesheet\" href=\"http://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/css/bootstrap.min.css\">");
+client.println("<script src=\"https://ajax.googleapis.com/ajax/libs/jquery/1.12.0/jquery.min.js\"></script>");
+client.println("<script src=\"http://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/js/bootstrap.min.js\"></script>");
+client.println("</head>");
+
+client.println("<body>");
+client.println("<div class=\"container\">");
+client.print("<h1>smart arabic projects</h1>");
+client.print("<p class=\"text-danger\">on-off device 1 Button:</p>"); 
+client.print("<a href=\"/dev1=ON\" class=\"btn btn-success\" role=\"button\">ON</a>");
+client.print("<a href=\"/dev1=OFF\" class=\"btn btn-danger\" role=\"button\">OFF</a>");
+
+client.println("device 1 pin is now: ");
+
+if(value1 == HIGH) {
+client.print("On");
+} else {
+client.print("Off");
+}
+
+client.print("<br><br>");
+client.print("<p class=\"text-danger\">on-off device 2 Button:</p>"); 
+client.print("<a href=\"/dev2=ON\" class=\"btn btn-success\" role=\"button\">ON</a>");
+client.print("<a href=\"/dev2=OFF\" class=\"btn btn-danger\" role=\"button\">OFF</a>");
+
+client.println("device 2 pin is now: ");
+
+if(value2 == HIGH) {
+client.print("On");
+} else {
+client.print("Off");
+}
+
+client.print("<br><br>");
+client.print("<p class=\"text-danger\">on-off device 3 Button:</p>"); 
+client.print("<a href=\"/dev3=ON\" class=\"btn btn-success\" role=\"button\">ON</a>");
+client.print("<a href=\"/dev3=OFF\" class=\"btn btn-danger\" role=\"button\">OFF</a>");
+
+client.println("device 3 pin is now: ");
+
+if(value3 == HIGH) {
+client.print("On");
+} else {
+client.print("Off");
+}
+
+client.print("<br><br>");
+client.print("<p class=\"text-danger\">on-off device 4 Button:</p>"); 
+client.print("<a href=\"/dev4=ON\" class=\"btn btn-success\" role=\"button\">ON</a>");
+client.print("<a href=\"/dev4=OFF\" class=\"btn btn-danger\" role=\"button\">OFF</a>");
+
+client.println("device 4 pin is now: ");
+
+if(value4 == HIGH) {
+client.print("On");
+} else {
+client.print("Off");
+}
+
+client.print("<br><br>");
+
+client.print("<h1>made by : bilal hassan</h1>");
+
+
+
+client.println("</div>");
+client.println("</body>");
+client.println("</html>");
+
+while(!client.available()){
+delay(1);
+}
+
+String request = client.readStringUntil('\r');
+Serial.println(request);
+client.flush();
+
+if (request.indexOf('/dev1=ON') != -1) {
+digitalWrite(IN1, HIGH);
+value1 = HIGH;
+}
+if (request.indexOf('/dev1=OFF') != -1) {
+digitalWrite(IN1, LOW);
+value1 = LOW;
+}
+
+if (request.indexOf('/dev2=ON') != -1) {
+digitalWrite(IN2, HIGH);
+value2 = HIGH;
+}
+if (request.indexOf('/dev2=OFF') != -1) {
+digitalWrite(IN2, LOW);
+value2 = LOW;
+}
+
+if (request.indexOf('/dev3=ON') != -1) {
+digitalWrite(IN3, HIGH);
+value3 = HIGH;
+}
+if (request.indexOf('/dev3=OFF') != -1) {
+digitalWrite(IN3, LOW);
+value3 = LOW;
+}
+
+if (request.indexOf('/dev4=ON') != -1) {
+digitalWrite(IN4, HIGH);
+value4 = HIGH;
+}
+if (request.indexOf('/dev4=OFF') != -1) {
+digitalWrite(IN4, LOW);
+value4 = LOW;
+}
+
+delay(1);
+Serial.println("Client disonnected");
+Serial.println("");
+
+}
